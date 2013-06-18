@@ -1,12 +1,12 @@
 --[[
-Name: s0beit.lua
-Product: Client-side LUA hook
-Author: s0beit
+
+parsnip <333333333333333
+
 ]]--
 
 --Start of config
-local s0beitEspCvar = CreateClientConVar( "s0beit_esp", 1, true, false )
-local s0beitCroCvar = CreateClientConVar( "s0beit_xhair", 1, true, false )
+local psEspCvar = CreateClientConVar( "ps_esp", 1, true, false )
+local psCroCvar = CreateClientConVar( "ps_xhair", 1, true, false )
 --End of config
 
 local printers = {"golden_printer", "diamond_printer", "quantum_printer", "emerald_printer",
@@ -35,7 +35,7 @@ local function DrawCrosshair()
 end
 
 function DrawESP()
-    if s0beitEspCvar:GetInt() == 1 then
+    if psEspCvar:GetInt() == 1 then
         for k, v in pairs(ents.GetAll()) do
             if( v:IsValid() and v ~= LocalPlayer() ) then
                 if( v:IsNPC() ) then
@@ -65,15 +65,27 @@ function DrawESP()
                     drawColor.b = drawColor.r/255*230 + 25
                     drawColor.a = 255;
                     
-                    draw.SimpleTextOutlined(v:GetName(),
-                                            "DefaultFixed",
-                                            drawPosit.x,
-                                            drawPosit.y,
-                                            drawColor,
-                                            TEXT_ALIGN_CENTER,
-                                            TEXT_ALIGN_CENTER,
-                                            1,
-                                            Color(0,0,0,255) )
+		            if v:GetFriendStatus() == "friend" then
+                        draw.SimpleTextOutlined(v:GetName(),
+                                                "DefaultFixed",
+                                                drawPosit.x,
+                                                drawPosit.y,
+                                                Color(255,0,0,255),
+                                                TEXT_ALIGN_CENTER,
+                                                TEXT_ALIGN_CENTER,
+                                                1,
+                                                Color(0,0,255,255))
+                    else
+                        draw.SimpleTextOutlined(v:GetName(),
+                                                "DefaultFixed",
+                                                drawPosit.x,
+                                                drawPosit.y,
+                                                drawColor,
+                                                TEXT_ALIGN_CENTER,
+                                                TEXT_ALIGN_CENTER,
+                                                1,
+                                                Color(0,0,0,255))
+                    end
                     
                     local max_health = 100;
                     
@@ -113,7 +125,7 @@ function DrawESP()
 end
 
 function DrawXHair()
-    if( s0beitCroCvar:GetInt() == 1 ) then
+    if( psCroCvar:GetInt() == 1 ) then
         DrawCrosshair();
     end
 end
