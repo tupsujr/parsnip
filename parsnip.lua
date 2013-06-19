@@ -4,8 +4,9 @@ parsnip <333333333333333
 
 ]]--
 local trigger_toggle = false
-local printer_toggle = true
-local friend_toggle = false
+local cvar_printer = CreateClientConVar("parsnip_printer", "1", false, false)
+local cvar_friend = CreateClientConVar("parsnip_friend", "0", false, false)
+
 
 local printers = {"golden_printer", "diamond_printer", "quantum_printer", "emerald_printer",
                    "money_pallet", "factory_printer", "gold_silo", "quantum_silo",
@@ -44,7 +45,7 @@ end
 local function DrawPlayerEsp()
     for k, v in pairs(player.GetAll()) do
         if v ~= LocalPlayer() and v:Health() > 0 and
-            not (friend_toggle and v:GetFriendStatus() ~= "friend") then
+            not (cvar_friend:GetBool() and v:GetFriendStatus() ~= "friend") then
             
             local color = GetDrawColor(v)
             local pos = v:EyePos():ToScreen();
@@ -96,19 +97,43 @@ end
 
 function ParsnipPaint()
     DrawPlayerEsp()
-    if printer_toggle then
+    if cvar_printer:GetBool() then
         DrawPrinterEsp()
     end
     DrawCrosshair()
 end
 
-concommand.Add("parsnip_printer", function()
-    printer_toggle = !printer_toggle
-end)
+function ParsnipMenu()
+    local Form = vgui.Create("DFrame")
+    Form:SetPos(200, 200)
+    Form:SetSize(300, 100)
+    Form:SetTitle("parsnip menu <3")
+    Form:SetVisible(true)
+    Form:ShowCloseButton(true)
+    Form:MakePopup()
+    
+    local List = vgui.Create("DPanelList", Form)
+    List:SetPos(15, 35)
+    List:SetSize(200, 50)
+    List:SetSpacing(10)
+    List:EnableHorizontal(false)
+    
+    local CheckPrinter = vgui.Create("DCheckBoxLabel")
+    CheckPrinter:SetText("Show printers")
+    CheckPrinter:SetConVar("parsnip_printer")
+    CheckPrinter:SizeToContents()
+    
+    List:AddItem(CheckPrinter)
+    
+    local CheckFriend = vgui.Create("DCheckBoxLabel")
+    CheckFriend:SetText("Show steam friends only")
+    CheckFriend:SetConVar("parsnip_friend")
+    CheckFriend:SizeToContents()
+    
+    List:AddItem(CheckFriend)
+end
 
-concommand.Add("parsnip_friend", function()
-    friend_toggle = !friend_toggle
-end)
+concommand.Add("parsnip_menu", ParsnipMenu)
 
 concommand.Add("+trigger", function()
     local wpn = LocalPlayer():GetActiveWeapon()
