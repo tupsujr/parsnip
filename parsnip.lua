@@ -4,27 +4,16 @@ parsnip <333333333333333
 
 ]]--
 
---Start of config
-local psEspCvar = CreateClientConVar( "ps_esp", 1, true, false )
-local psCroCvar = CreateClientConVar( "ps_xhair", 1, true, false )
---End of config
-
 local printers = {"golden_printer", "diamond_printer", "quantum_printer", "emerald_printer",
                    "money_pallet", "factory_printer", "gold_silo", "quantum_silo",
                    "diamond_silo", "diamond_factory", "diamond_pallet", "emerald_silo",
                    "christmas_silo", "christmas_factory", "drug_lab", "normal_money_printer",
                    "gold_money_printer", "ruby_money_printer", "donator_money_printer"}
- 
 
-local function FillRGBA(x,y,w,h,col)
-    surface.SetDrawColor( col.r, col.g, col.b, col.a );
-    surface.DrawRect( x, y, w, h );
-end
-
-local function OutlineRGBA(x,y,w,h,col)
-    surface.SetDrawColor( col.r, col.g, col.b, col.a );
-    surface.DrawOutlinedRect( x, y, w, h );
-end
+surface.CreateFont("ParsnipFont", {
+    font = "DefaultBold",
+    size = 14
+})
 
 local function DrawCrosshair()
     local w = ScrW() / 2;
@@ -34,101 +23,93 @@ local function DrawCrosshair()
     FillRGBA( w, h - 5, 1, 11, Color( 255, 0, 0, 255 ) );
 end
 
-function DrawESP()
-    if psEspCvar:GetInt() == 1 then
-        for k, v in pairs(ents.GetAll()) do
-            if( v:IsValid() and v ~= LocalPlayer() ) then
-                if( v:IsNPC() ) then
-                    local drawColor = Color(255, 255, 255, 255);
-                    local drawPosit = v:GetPos():ToScreen();
-                    
-                    drawColor = Color( 255, 0, 0, 255 );
-                    
-                    local textData = {}
-                    
-                    textData.pos = {}
-                    textData.pos[1] = drawPosit.x;
-                    textData.pos[2] = drawPosit.y;
-                    textData.color = drawColor;
-                    textData.text = v:GetClass();
-                    textData.font = "DefaultFixed";
-                    textData.xalign = TEXT_ALIGN_CENTER;
-                    textData.yalign = TEXT_ALIGN_CENTER;
-                    draw.Text( textData );
-                    
-                elseif( v:IsPlayer() and v:Health() > 0 and v:Alive() ) then
-                    local drawColor = team.GetColor(v:Team());
-                    local drawPosit = v:EyePos():ToScreen();
-                    
-                    drawColor.r = drawColor.r/255*230 + 25
-                    drawColor.g = drawColor.r/255*230 + 25
-                    drawColor.b = drawColor.r/255*230 + 25
-                    drawColor.a = 255;
-                    
-		            if v:GetFriendStatus() == "friend" then
-                        draw.SimpleTextOutlined(v:GetName(),
-                                                "DefaultFixed",
-                                                drawPosit.x,
-                                                drawPosit.y,
-                                                Color(255,0,0,255),
-                                                TEXT_ALIGN_CENTER,
-                                                TEXT_ALIGN_CENTER,
-                                                1,
-                                                Color(0,0,255,255))
-                    else
-                        draw.SimpleTextOutlined(v:GetName(),
-                                                "DefaultFixed",
-                                                drawPosit.x,
-                                                drawPosit.y,
-                                                drawColor,
-                                                TEXT_ALIGN_CENTER,
-                                                TEXT_ALIGN_CENTER,
-                                                1,
-                                                Color(0,0,0,255))
-                    end
-                    
-                    local max_health = 100;
-                    
-                    if( v:Health() > max_health ) then
-                        max_health = v:Health();
-                    end
-                    
-                    local mx = max_health / 4;
-                    local mw = v:Health() / 4;
-                    
-                    local drawPosHealth = drawPosit;
-                    
-                    drawPosHealth.x = drawPosHealth.x - ( mx / 2 );
-                    drawPosHealth.y = drawPosHealth.y + 10;
-                    
-                    FillRGBA( drawPosHealth.x - 1, drawPosHealth.y - 1, mx + 2, 4 + 2, Color( 0, 0, 0, 255 ) );
-                    FillRGBA( drawPosHealth.x, drawPosHealth.y, mw, 4, drawColor );
-                elseif( table.HasValue(printers, v:GetClass()) ) then
-                    
-                    local drawColor = Color(255, 255, 128, 255);
-                    local drawPosit = v:GetPos():ToScreen();
-      
-                    draw.SimpleTextOutlined(v:GetClass() .. v:EntIndex(),
-                                            "DefaultFixed",
-                                            drawPosit.x,
-                                            drawPosit.y,
-                                            drawColor,
-                                            TEXT_ALIGN_CENTER,
-                                            TEXT_ALIGN_CENTER,
-                                            1,
-                                            Color(0,0,0,255) )
-                end
-                
-            end
+local function GetDrawColor(ply)
+    local color = Color(255, 0, 255, 255)
+    
+    if ply:GetFriendStatus() ~= "friend" then
+        color = team.GetColor(ply:Team())
+        color.r = color.r/255*200 + 55
+        color.g = color.g/255*200 + 55
+        color.b = color.b/255*200 + 55
+    end
+    
+    return color
+end
+
+local function DrawPlayerEsp()
+    for k, v in pairs(player.GetAll()) do
+        if v ~= LocalPlayer() and v:Health() > 0 then
+            local color = GetDrawColor(v)
+            local pos = v:EyePos():ToScreen();
+            
+            draw.SimpleTextOutlined(
+                v:GetName(),
+                "ParsnipFont",
+                pos.x,
+                pos.y,
+                color,
+                TEXT_ALIGN_CENTER,
+                TEXT_ALIGN_CENTER,
+                1,
+                Color(0,0,0,255))
+            surface.SetDrawColor(Color(0,0,0,200))
+            surface.DrawRect(
+                pos.x-21,
+                pos.y+5,
+                42,
+                5)
+            surface.SetDrawColor(Color(200,0,0,200))
+            surface.DrawRect(
+                pos.x-20,
+                pos.y+6,
+                v:Health()*0.4,
+                3)
         end
     end
 end
 
-function DrawXHair()
-    if( psCroCvar:GetInt() == 1 ) then
-        DrawCrosshair();
-    end
+function ParsnipPaint()
+    DrawPlayerEsp()
 end
+
+local trigger_toggle = false
+concommand.Add("+trigger", function()
+    local wpn = LocalPlayer():GetActiveWeapon()
+    if wpn:IsValid() and wpn.Primary then
+        wpn.Primary.Recoil = 0
+    end
+    
+    hook.Add("Think", "ParsnipTrigger", function()
+        local target = LocalPlayer():GetEyeTrace().Entity
+        
+        if target:IsPlayer() or target:IsNPC() then
+            if !trigger_toggle then
+                RunConsoleCommand("+attack")
+            else
+                RunConsoleCommand("-attack") 
+            end
+            trigger_toggle = !trigger_toggle
+        else
+            if trigger_toggle then
+                RunConsoleCommand("-attack")
+                trigger_toggle = false
+            end
+        end
+    end)
+end)
+
+concommand.Add("parsnip_fix_error", function()
+    for k, v in pairs(player.GetAll()) do
+        if v:GetModel() == "models/error.mdl" or v:GetModel() == "models/lamarr.mdl"then
+            v:SetModel("models/player/group03/male_02.mdl")
+        end
+    end
+end)
+
+concommand.Add("-trigger", function()
+    RunConsoleCommand("-attack")
+    hook.Remove("Think", "ParsnipTrigger")
+end)
 
 concommand.Add("+bhop",function()
     hook.Add("Think","hook",function()
@@ -141,5 +122,5 @@ concommand.Add("-bhop",function()
     hook.Remove("Think","hook")
 end)
 
-hook.Add( "HUDPaint", "DrawESP", DrawESP );
-hook.Add( "HUDPaint", "DrawXHair", DrawXHair );  
+hook.Add("HUDPaint", "ParsnipPaint", ParsnipPaint);
+
