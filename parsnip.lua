@@ -6,7 +6,9 @@ parsnip <333333333333333
 local trigger_toggle = false
 local cvar_printer = CreateClientConVar("parsnip_printer", "1", false, false)
 local cvar_friend = CreateClientConVar("parsnip_friend", "0", false, false)
-
+local old_yaw = 0
+local old_dir = 0
+local bhop_on = false
 
 local printers = {"golden_printer", "diamond_printer", "quantum_printer", "emerald_printer",
                    "money_pallet", "factory_printer", "gold_silo", "quantum_silo",
@@ -27,6 +29,15 @@ local function DrawCrosshair()
     surface.SetDrawColor(Color(200,0,0,200))
     surface.DrawLine( w - 5, h, w + 6, h);
     surface.DrawLine( w, h - 5, w, h + 6);
+    
+    if bhop_on then
+        surface.SetDrawColor(Color(0,0,250,200))
+        if old_dir == 1 then
+            surface.DrawLine( w, h, w + 30, h);
+        elseif old_dir == -1 then
+            surface.DrawLine( w, h, w - 30, h);
+        end
+    end
 end
 
 local function GetDrawColor(ply)
@@ -166,13 +177,52 @@ concommand.Add("-trigger", function()
 end)
 
 concommand.Add("+bhop",function()
+    old_dir = 0
+    bhop_on = true
     hook.Add("Think","hook",function()
+    
         RunConsoleCommand(((LocalPlayer():IsOnGround() or LocalPlayer():WaterLevel() > 0) and "+" or "-").."jump")
+    
+        local new_yaw = LocalPlayer():EyeAngles().yaw
+
+        local diff = new_yaw - old_yaw
+        local dir = 0
+        if (diff < 0 and diff > -90) or diff > 300 then
+            dir = 1
+        elseif diff ~= 0 then
+            dir = -1
+        end
+        
+        old_yaw = new_yaw
+        
+        if dir ~= old_dir then
+            if old_dir == 1 then
+                RunConsoleCommand("-moveright")
+            elseif old_dir == -1 then
+                RunConsoleCommand("-moveleft")
+            end
+            
+            if dir == 1 then
+                RunConsoleCommand("+moveright")
+            elseif dir == -1 then
+                RunConsoleCommand("+moveleft")
+            end
+        end
+        
+        old_dir = dir
     end)
 end)
 
 concommand.Add("-bhop",function()
+    bhop_on = false
     RunConsoleCommand("-jump")
+    if old_dir == 1 then
+        RunConsoleCommand("-moveright")
+    elseif old_dir == -1 then
+        RunConsoleCommand("-moveleft")
+    end
+    old_dir = 0
+    old_yaw = 0
     hook.Remove("Think","hook")
 end)
 
