@@ -68,7 +68,7 @@ local function DrawPlayerEsp()
             surface.DrawRect(
                 pos.x-20,
                 pos.y+6,
-                v:Health()*0.4,
+                math.min(v:Health()*0.4, 40),
                 3)
         end
     end
