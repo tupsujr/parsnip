@@ -3,6 +3,9 @@
 parsnip <333333333333333
 
 ]]--
+local trigger_toggle = false
+local printer_toggle = true
+local friend_toggle = false
 
 local printers = {"golden_printer", "diamond_printer", "quantum_printer", "emerald_printer",
                    "money_pallet", "factory_printer", "gold_silo", "quantum_silo",
@@ -19,8 +22,9 @@ local function DrawCrosshair()
     local w = ScrW() / 2;
     local h = ScrH() / 2;
     
-    FillRGBA( w - 5, h, 11, 1, Color( 255, 0, 0, 255 ) );
-    FillRGBA( w, h - 5, 1, 11, Color( 255, 0, 0, 255 ) );
+    surface.SetDrawColor(Color(200,0,0,200))
+    surface.DrawLine( w - 5, h, w + 6, h);
+    surface.DrawLine( w, h - 5, w, h + 6);
 end
 
 local function GetDrawColor(ply)
@@ -38,7 +42,9 @@ end
 
 local function DrawPlayerEsp()
     for k, v in pairs(player.GetAll()) do
-        if v ~= LocalPlayer() and v:Health() > 0 then
+        if v ~= LocalPlayer() and v:Health() > 0 and
+            not (friend_toggle and v:GetFriendStatus() ~= "friend") then
+            
             local color = GetDrawColor(v)
             local pos = v:EyePos():ToScreen();
             
@@ -89,10 +95,20 @@ end
 
 function ParsnipPaint()
     DrawPlayerEsp()
-    DrawPrinterEsp()
+    if printer_toggle then
+        DrawPrinterEsp()
+    end
+    DrawCrosshair()
 end
 
-local trigger_toggle = false
+concommand.Add("parsnip_printer", function()
+    printer_toggle = !printer_toggle
+end)
+
+concommand.Add("parsnip_friend", function()
+    friend_toggle = !friend_toggle
+end)
+
 concommand.Add("+trigger", function()
     local wpn = LocalPlayer():GetActiveWeapon()
     if wpn:IsValid() and wpn.Primary then
