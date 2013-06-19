@@ -68,8 +68,28 @@ local function DrawPlayerEsp()
     end
 end
 
+local function DrawPrinterEsp()
+    for k, v in pairs(ents.GetAll()) do
+        if v:IsValid() and table.HasValue(printers, v:GetClass()) then
+            local pos = v:GetPos():ToScreen()
+            draw.SimpleTextOutlined(
+                v:GetClass(),
+                "ParsnipFont",
+                pos.x,
+                pos.y,
+                Color(255,0,255,255),
+                TEXT_ALIGN_CENTER,
+                TEXT_ALIGN_CENTER,
+                1,
+                Color(255,255,0,255))
+            
+        end 
+    end
+end
+
 function ParsnipPaint()
     DrawPlayerEsp()
+    DrawPrinterEsp()
 end
 
 local trigger_toggle = false
@@ -96,14 +116,6 @@ concommand.Add("+trigger", function()
             end
         end
     end)
-end)
-
-concommand.Add("parsnip_fix_error", function()
-    for k, v in pairs(player.GetAll()) do
-        if v:GetModel() == "models/error.mdl" or v:GetModel() == "models/lamarr.mdl"then
-            v:SetModel("models/player/group03/male_02.mdl")
-        end
-    end
 end)
 
 concommand.Add("-trigger", function()
