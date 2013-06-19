@@ -11,7 +11,8 @@ local printers = {"golden_printer", "diamond_printer", "quantum_printer", "emera
                    "money_pallet", "factory_printer", "gold_silo", "quantum_silo",
                    "diamond_silo", "diamond_factory", "diamond_pallet", "emerald_silo",
                    "christmas_silo", "christmas_factory", "drug_lab", "normal_money_printer",
-                   "gold_money_printer", "ruby_money_printer", "donator_money_printer"}
+                   "gold_money_printer", "ruby_money_printer", "donator_money_printer",
+                   "money_printer"}
 
 surface.CreateFont("ParsnipFont", {
     font = "DefaultBold",
