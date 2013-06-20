@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# location: .git/hooks/pre-commit
+echo `git describe --tags --long` > version.txt
+git add version.txt
