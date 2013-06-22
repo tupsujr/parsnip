@@ -6,6 +6,7 @@ parsnip <333333333333333
 local trigger_toggle = false
 local cvar_printer = CreateClientConVar("parsnip_printer", "1", false, false)
 local cvar_friend = CreateClientConVar("parsnip_friend", "0", false, false)
+local cvar_bhop = CreateClientConVar("parsnip_bhop", "1", false, false)
 local old_yaw = 0
 local old_dir = 0
 local bhop_on = false
@@ -15,7 +16,7 @@ local printers = {"golden_printer", "diamond_printer", "quantum_printer", "emera
                    "diamond_silo", "diamond_factory", "diamond_pallet", "emerald_silo",
                    "christmas_silo", "christmas_factory", "drug_lab", "normal_money_printer",
                    "gold_money_printer", "ruby_money_printer", "donator_money_printer",
-                   "money_printer", "spawned_money"}
+                   "money_printer", "spawned_money", "ttt_c4"}
 
 surface.CreateFont("ParsnipFont", {
     font = "DefaultBold",
@@ -43,7 +44,9 @@ end
 local function GetDrawColor(ply)
     local color = Color(255, 0, 255, 255)
     
-    if ply:GetFriendStatus() ~= "friend" then
+    if ply:IsTraitor() then
+        color = Color(255,0,0,255)
+    elseif ply:GetFriendStatus() ~= "friend" then
         color = team.GetColor(ply:Team())
         color.r = color.r/255*200 + 55
         color.g = color.g/255*200 + 55
@@ -116,8 +119,8 @@ end
 
 function ParsnipMenu()
     local Form = vgui.Create("DFrame")
-    Form:SetPos(200, 200)
-    Form:SetSize(300, 100)
+    Form:SetSize(300, 150)
+    Form:Center()
     Form:SetTitle("parsnip 0.9 <3")
     Form:SetVisible(true)
     Form:ShowCloseButton(true)
@@ -125,7 +128,7 @@ function ParsnipMenu()
     
     local List = vgui.Create("DPanelList", Form)
     List:SetPos(15, 35)
-    List:SetSize(200, 50)
+    List:SetSize(300, 150)
     List:SetSpacing(10)
     List:EnableHorizontal(false)
     
@@ -133,15 +136,19 @@ function ParsnipMenu()
     CheckPrinter:SetText("Show printers")
     CheckPrinter:SetConVar("parsnip_printer")
     CheckPrinter:SizeToContents()
-    
     List:AddItem(CheckPrinter)
     
     local CheckFriend = vgui.Create("DCheckBoxLabel")
     CheckFriend:SetText("Show steam friends only")
     CheckFriend:SetConVar("parsnip_friend")
     CheckFriend:SizeToContents()
-    
     List:AddItem(CheckFriend)
+    
+    local CheckBhop = vgui.Create("DCheckBoxLabel")
+    CheckBhop:SetText("Bhop script jumping")
+    CheckBhop:SetConVar("parsnip_bhop")
+    CheckBhop:SizeToContents()
+    List:AddItem(CheckBhop)
 end
 
 concommand.Add("parsnip_menu", ParsnipMenu)
@@ -181,8 +188,12 @@ concommand.Add("+bhop",function()
     bhop_on = true
     hook.Add("Think","hook",function()
     
-        RunConsoleCommand(((LocalPlayer():IsOnGround() or LocalPlayer():WaterLevel() > 0) and "+" or "-").."jump")
-    
+        if cvar_bhop:GetBool() then    
+            RunConsoleCommand(((LocalPlayer():IsOnGround() or LocalPlayer():WaterLevel() > 0) and "+" or "-").."jump")
+        else
+            RunConsoleCommand("+jump")
+        end
+        
         local new_yaw = LocalPlayer():EyeAngles().yaw
 
         local diff = new_yaw - old_yaw
