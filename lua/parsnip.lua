@@ -44,7 +44,7 @@ end
 local function GetDrawColor(ply)
     local color = Color(255, 0, 255, 255)
     
-    if ply:IsTraitor() then
+    if ply.IsTraitor and ply:IsTraitor() then
         color = Color(255,0,0,255)
     elseif ply:GetFriendStatus() ~= "friend" then
         color = team.GetColor(ply:Team())
@@ -117,18 +117,23 @@ function ParsnipPaint()
     DrawCrosshair()
 end
 
+function ParsnipVersion()
+    local version = file.Read("parsnip_version.txt", "DATA")
+    return version:match("(.-)%s*$")
+end
+
 function ParsnipMenu()
     local Form = vgui.Create("DFrame")
-    Form:SetSize(300, 150)
+    Form:SetSize(400, 150)
     Form:Center()
-    Form:SetTitle("parsnip 0.9 <3")
+    Form:SetTitle("parsnip " .. ParsnipVersion())
     Form:SetVisible(true)
     Form:ShowCloseButton(true)
     Form:MakePopup()
     
     local List = vgui.Create("DPanelList", Form)
     List:SetPos(15, 35)
-    List:SetSize(300, 150)
+    List:SetSize(400, 150)
     List:SetSpacing(10)
     List:EnableHorizontal(false)
     
