@@ -1,5 +1,5 @@
 #!/bin/sh
 
 # location: .git/hooks/pre-commit
-echo `git describe --tags --long` > data/parsnip_version.txt
-git add data/parsnip_version.txt
+echo parsnip_version=\'`git describe --tags --long`\' > lua/parsnip_version.lua
+git add lua/parsnip_version.lua
