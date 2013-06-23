@@ -122,6 +122,25 @@ function ParsnipVersion()
     return version:match("(.-)%s*$")
 end
 
+function ParsnipCheckVersion()
+   http.Fetch("http://raw.github.com/tarjoilija/parsnip/master/data/parsnip_version.txt",
+	function(HTML)
+	    latest = HTML:match("(.-)%s*$")
+	    current = ParsnipVersion()
+	    if latest == current then
+	        print("Parsnip is up to date!")
+	    else
+	        print("Parsnip version: " .. current .. " available in github: " .. latest)
+	    end
+	end,
+	function()
+		print("Parsnip version checking failed.")
+	end
+ ); 
+end
+
+ParsnipCheckVersion()
+
 function ParsnipMenu()
     local Form = vgui.Create("DFrame")
     Form:SetSize(400, 150)
