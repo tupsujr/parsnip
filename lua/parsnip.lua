@@ -3,6 +3,8 @@
 parsnip <333333333333333
 
 ]]--
+include("parsnip_version.lua")
+
 local trigger_toggle = false
 local cvar_printer = CreateClientConVar("parsnip_printer", "1", false, false)
 local cvar_friend = CreateClientConVar("parsnip_friend", "0", false, false)
@@ -118,8 +120,7 @@ function ParsnipPaint()
 end
 
 function ParsnipVersion()
-    local version = file.Read("parsnip_version.txt", "DATA")
-    return version:match("(.-)%s*$")
+    return parsnip_version
 end
 
 function ParsnipCheckVersion()
