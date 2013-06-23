@@ -189,9 +189,10 @@ concommand.Add("-trigger", function()
 end)
 
 concommand.Add("+bhop",function()
+    old_yaw = LocalPlayer():GetAimVector().yaw
     old_dir = 0
     bhop_on = true
-    hook.Add("Think","hook",function()
+    hook.Add("Think","ParsnipBhop",function()
     
         if cvar_bhop:GetBool() then    
             RunConsoleCommand(((LocalPlayer():IsOnGround() or LocalPlayer():WaterLevel() > 0) and "+" or "-").."jump")
@@ -199,17 +200,21 @@ concommand.Add("+bhop",function()
             RunConsoleCommand("+jump")
         end
         
-        local new_yaw = LocalPlayer():EyeAngles().yaw
-
-        local diff = new_yaw - old_yaw
+        
+        -- BHOP AUTO-TURNING
         local dir = 0
-        if (diff < 0 and diff > -90) or diff > 300 then
-            dir = 1
-        elseif diff ~= 0 then
-            dir = -1
+        local yaw = LocalPlayer():EyeAngles().yaw
+        local ang = (yaw - old_yaw) % 360
+        if ang > 180 then
+            ang = ang - 360
         end
         
-        old_yaw = new_yaw
+        old_yaw = yaw
+        if ang < 0 then
+            dir = 1
+        elseif ang > 0 then
+            dir = -1
+        end
         
         if dir ~= old_dir then
             if old_dir == 1 then
@@ -223,15 +228,15 @@ concommand.Add("+bhop",function()
             elseif dir == -1 then
                 RunConsoleCommand("+moveleft")
             end
+            old_dir = dir
         end
-        
-        old_dir = dir
     end)
 end)
 
 concommand.Add("-bhop",function()
     bhop_on = false
     RunConsoleCommand("-jump")
+    
     if old_dir == 1 then
         RunConsoleCommand("-moveright")
     elseif old_dir == -1 then
@@ -239,7 +244,7 @@ concommand.Add("-bhop",function()
     end
     old_dir = 0
     old_yaw = 0
-    hook.Remove("Think","hook")
+    hook.Remove("Think","ParsnipBhop")
 end)
 
 hook.Add("HUDPaint", "ParsnipPaint", ParsnipPaint);
