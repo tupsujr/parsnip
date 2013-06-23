@@ -124,20 +124,7 @@ function ParsnipVersion()
 end
 
 function ParsnipCheckVersion()
-   http.Fetch("http://raw.github.com/tarjoilija/parsnip/master/data/parsnip_version.txt",
-	function(HTML)
-	    latest = HTML:match("(.-)%s*$")
-	    current = ParsnipVersion()
-	    if latest == current then
-	        print("Parsnip is up to date " .. current)
-	    else
-	        print("Parsnip version " .. current .. ", available in github " .. latest)
-	    end
-	end,
-	function()
-		print("Parsnip version checking failed")
-	end
- ); 
+   print("parsnip version " .. parsnip_version)
 end
 
 ParsnipCheckVersion()
