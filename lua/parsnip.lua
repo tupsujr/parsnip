@@ -128,13 +128,13 @@ function ParsnipCheckVersion()
 	    latest = HTML:match("(.-)%s*$")
 	    current = ParsnipVersion()
 	    if latest == current then
-	        print("Parsnip is up to date!")
+	        print("Parsnip is up to date " .. current)
 	    else
-	        print("Parsnip version: " .. current .. " available in github: " .. latest)
+	        print("Parsnip version " .. current .. ", available in github " .. latest)
 	    end
 	end,
 	function()
-		print("Parsnip version checking failed.")
+		print("Parsnip version checking failed")
 	end
  ); 
 end
